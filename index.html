@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0b0b0b">
 <title>Hunch</title>
+
+<link rel="icon" type="image/png" href="file_000000008ea082309867563369780742.png">
+<link rel="apple-touch-icon" href="file_000000008ea082309867563369780742.png">
+
 <style>
 :root{color-scheme:dark}
 *{box-sizing:border-box}
@@ -17,7 +21,8 @@ header{height:64px;flex:0 0 64px;display:flex;align-items:center;justify-content
 .note{max-width:820px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(29px,7vw,54px);line-height:1.18;font-weight:600;overflow-wrap:anywhere}
 .tools{margin-top:34px;display:flex;gap:10px;justify-content:center}
 .tools button{border:1px solid #3a3a3a;border-radius:12px;background:#1c1c1c;color:#fff;padding:10px 16px;font-size:14px;font-weight:700}
-.tools .done{background:#20c65a;border-color:#20c65a}.tools .delete{background:#c62828;border-color:#c62828;color:#fff}
+.tools .done{background:#20c65a;border-color:#20c65a}
+.tools .delete{background:#c62828;border-color:#c62828;color:#fff}
 .empty{min-width:100vw;height:100%;display:flex;align-items:center;justify-content:center;padding:30px 30px 140px;text-align:center;color:#777;font-size:18px}
 #counter{position:fixed;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));text-align:center;font-size:13px;opacity:.45;pointer-events:none}
 #addBtn{position:fixed;right:26px;bottom:calc(54px + env(safe-area-inset-bottom));z-index:20;width:68px;height:68px;border:0;border-radius:50%;background:#20c65a;color:#fff;font-size:44px;line-height:1;box-shadow:0 8px 24px rgba(0,0,0,.45)}
@@ -27,112 +32,8 @@ header{height:64px;flex:0 0 64px;display:flex;align-items:center;justify-content
 .sheet{width:min(680px,100%);background:#181818;border:1px solid #303030;border-radius:22px;padding:18px;box-shadow:0 15px 60px rgba(0,0,0,.6)}
 .sheet h2{margin:2px 0 14px;font-size:22px}
 textarea{width:100%;min-height:145px;border:1px solid #3a3a3a;border-radius:13px;background:#0d0d0d;color:#fff;padding:14px;font:18px Arial;outline:none;resize:vertical}
-.actions{display:flex;gap:10px;margin-top:14px}.actions button{flex:1;min-height:50px;border-radius:13px;border:0;font-size:17px;font-weight:700}
-#cancelBtn{background:#303030;color:#fff}#saveBtn{background:#20c65a;color:#fff}
-.fragment{position:fixed;z-index:1000;pointer-events:none;font-family:Georgia,"Times New Roman",serif;font-weight:600;color:#fff;transition:transform 850ms cubic-bezier(.2,.8,.2,1),opacity 850ms ease}
-</style>
-</head>
-<body>
-<div id="app">
-<header>HUNCH</header>
-<main id="viewport"><div id="track"></div></main>
-<div class="hint">Swipe ← →</div>
-<div id="counter"></div>
-<button id="addBtn" aria-label="Add note">+</button>
-<div id="modal" aria-hidden="true">
- <div class="sheet">
-  <h2 id="modalTitle">Add a note</h2>
-  <textarea id="noteInput" placeholder="Type your note here…"></textarea>
-  <div class="actions"><button id="cancelBtn">Cancel</button><button id="saveBtn">Save Note</button></div>
- </div>
-</div>
-</div>
-<script>
-const KEY="hunch_notes_v3";
-let notes=[];
-try{const saved=JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(saved)) notes=saved;}catch(e){}
-let index=0, editingIndex=null;
-const track=document.getElementById("track"), viewport=document.getElementById("viewport"),
-counter=document.getElementById("counter"), modal=document.getElementById("modal"),
-input=document.getElementById("noteInput"), title=document.getElementById("modalTitle");
-
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-function persist(){localStorage.setItem(KEY,JSON.stringify(notes));}
-function render(){
- if(!notes.length){
-   track.innerHTML='<section class="empty">Tap + to add your first Hunch.</section>';
-   counter.textContent="";
-   track.style.transform="translateX(0)";
-   return;
- }
- track.innerHTML=notes.map((n,i)=>`<section class="card" data-index="${i}">
-   <div class="note">${esc(n.text)}</div>
-   <div class="tools">
-    <button class="edit" data-index="${i}">Edit</button>
-    <button class="delete" data-index="${i}">Delete</button>
-    <button class="done" data-index="${i}">Done</button>
-   </div>
- </section>`).join("");
- index=Math.max(0,Math.min(index,notes.length-1)); go(index,false);
-}
-function go(i,animate=true){
- if(!notes.length)return;
- index=Math.max(0,Math.min(i,notes.length-1));
- track.style.transition=animate?"transform 280ms cubic-bezier(.2,.8,.2,1)":"none";
- track.style.transform=`translateX(${-index*window.innerWidth}px)`;
- counter.textContent=`${index+1} / ${notes.length}`;
-}
-function openAdd(i=null){
- editingIndex=i;
- if(i===null){title.textContent="Add a note";input.value="";document.getElementById("saveBtn").textContent="Save Note";}
- else{title.textContent="Edit note";input.value=notes[i].text;document.getElementById("saveBtn").textContent="Save Changes";}
- modal.classList.add("open");modal.setAttribute("aria-hidden","false");setTimeout(()=>input.focus(),80);
-}
-function closeModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");input.blur();}
-document.getElementById("addBtn").onclick=()=>openAdd();
-document.getElementById("cancelBtn").onclick=closeModal;
-document.getElementById("saveBtn").onclick=()=>{
- const text=input.value.trim(); if(!text)return input.focus();
- if(editingIndex===null){notes.push({text});index=notes.length-1;}
- else{notes[editingIndex]={text};index=editingIndex;}
- persist();editingIndex=null;render();closeModal();
-};
-modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
-track.addEventListener("click",e=>{
- const edit=e.target.closest(".edit"), del=e.target.closest(".delete"), done=e.target.closest(".done");
- if(edit)return openAdd(Number(edit.dataset.index));
- if(del){const i=Number(del.dataset.index);if(!confirm("Delete this note?"))return;notes.splice(i,1);persist();index=Math.min(i,Math.max(0,notes.length-1));render();return;}
- if(done) finishNote(Number(done.dataset.index));
-});
-function finishNote(i){
- const card=track.querySelector(`.card[data-index="${i}"]`);
- const noteEl=card && card.querySelector(".note");
- if(!noteEl){notes.splice(i,1);persist();render();return;}
- const rect=noteEl.getBoundingClientRect(), text=notes[i].text;
- noteEl.style.visibility="hidden"; card.querySelector(".tools").style.visibility="hidden";
- const pieces=text.match(/\S+\s*/g)||[text];
- let x=rect.left, y=rect.top, lineH=parseFloat(getComputedStyle(noteEl).lineHeight)||50;
- const approx=Math.max(1,Math.floor(rect.width/Math.max(18,parseFloat(getComputedStyle(noteEl).fontSize)*0.55)));
- let chars=0;
- pieces.forEach((p,k)=>{
-   const span=document.createElement("span");span.className="fragment";span.textContent=p;
-   span.style.fontSize=getComputedStyle(noteEl).fontSize;
-   chars+=p.length;
-   let row=Math.floor(chars/approx), col=(chars-p.length)%approx;
-   span.style.left=(x+(col/approx)*rect.width)+"px";span.style.top=(y+row*lineH)+"px";
-   document.body.appendChild(span);
-   const dx=(Math.random()-.5)*220, dy=80+Math.random()*260, rot=(Math.random()-.5)*120;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{span.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg) scale(.65)`;span.style.opacity="0";}));
-   setTimeout(()=>span.remove(),900);
- });
- setTimeout(()=>{notes.splice(i,1);persist();index=Math.min(i,Math.max(0,notes.length-1));render();},850);
-}
-let sx=0,sy=0,drag=false;
-viewport.addEventListener("touchstart",e=>{if(e.touches.length!==1||!notes.length)return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;drag=true;track.style.transition="none"},{passive:true});
-viewport.addEventListener("touchmove",e=>{if(!drag||e.touches.length!==1)return;const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)){e.preventDefault();track.style.transform=`translateX(${(-index*innerWidth)+dx}px)`}},{passive:false});
-viewport.addEventListener("touchend",e=>{if(!drag)return;drag=false;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60){if(dx<0&&index<notes.length-1)go(index+1);else if(dx>0&&index>0)go(index-1);else go(index)}else go(index)},{passive:true});
-window.addEventListener("resize",()=>{if(notes.length)go(index,false)});
-render();
-</script>
-</body>
-</html>
+.actions{display:flex;gap:10px;margin-top:14px}
+.actions button{flex:1;min-height:50px;border-radius:13px;border:0;font-size:17px;font-weight:700}
+#cancelBtn{background:#303030;color:#fff}
+#saveBtn{background:#20c65a;color:#fff}
+.fragment{position:fixed;z-index:1000;pointer

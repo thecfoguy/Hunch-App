@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
 
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
+  >
 
-  <meta name="theme-color" content="#111111" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <meta name="apple-mobile-web-app-title" content="Hunch" />
+  <meta name="theme-color" content="#111111">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Hunch">
 
   <title>Hunch</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
 
   <style>
     * {
@@ -31,9 +31,9 @@
       margin: 0;
       padding: 0;
       min-height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
       background: #f4f4f1;
       color: #181818;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
@@ -45,9 +45,9 @@
       position: sticky;
       top: 0;
       z-index: 10;
+      padding: 18px 16px 14px;
       background: #f4f4f1;
       border-bottom: 1px solid #ddddda;
-      padding: 18px 16px 14px;
     }
 
     .header-inner {
@@ -62,11 +62,11 @@
       width: 42px;
       height: 42px;
       border-radius: 11px;
-      background: #111111;
-      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #111111;
+      color: #ffffff;
       font-size: 28px;
       font-weight: 800;
     }
@@ -84,31 +84,31 @@
     }
 
     .empty {
-      text-align: center;
-      color: #777;
       padding: 80px 20px;
+      text-align: center;
+      color: #777777;
       font-size: 18px;
       line-height: 1.5;
     }
 
     .note {
-      background: white;
-      border-radius: 18px;
-      padding: 18px;
+      max-height: 500px;
       margin-bottom: 14px;
+      padding: 18px;
+      overflow: hidden;
+      background: #ffffff;
       border: 1px solid #e0e0dc;
+      border-radius: 18px;
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-
       opacity: 1;
       transform: translateX(0);
-      max-height: 500px;
 
       transition:
-        opacity 0.4s ease,
-        transform 0.4s ease,
-        max-height 0.4s ease,
-        padding 0.4s ease,
-        margin 0.4s ease;
+        opacity 0.42s ease,
+        transform 0.42s ease,
+        max-height 0.42s ease,
+        padding 0.42s ease,
+        margin 0.42s ease;
     }
 
     .note.disappear {
@@ -119,29 +119,14 @@
       padding-bottom: 0;
       margin-bottom: 0;
       border-width: 0;
-      overflow: hidden;
     }
 
     .note-text {
+      margin-bottom: 16px;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       font-size: 19px;
       line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .edit-box {
-      width: 100%;
-      min-height: 110px;
-      resize: vertical;
-      padding: 12px;
-      border-radius: 12px;
-      border: 2px solid #1f9d55;
-      font-family: inherit;
-      font-size: 19px;
-      line-height: 1.5;
-      outline: none;
-      margin-bottom: 16px;
     }
 
     .button-row {
@@ -161,7 +146,7 @@
 
     .edit-button {
       background: #e7e7e3;
-      color: #222;
+      color: #222222;
     }
 
     .delete-button {
@@ -172,6 +157,22 @@
     .done-button {
       background: #ddefe3;
       color: #16763a;
+    }
+
+    .edit-box {
+      width: 100%;
+      min-height: 110px;
+      margin-bottom: 16px;
+      padding: 12px;
+      resize: vertical;
+      outline: none;
+      background: #ffffff;
+      color: #181818;
+      border: 2px solid #1f9d55;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 19px;
+      line-height: 1.5;
     }
 
     #addButton {
@@ -186,24 +187,24 @@
       border: none;
       border-radius: 50%;
 
-      background: #1f9d55;
-      color: white;
+      background: #1fa857;
+      color: #ffffff;
 
-      font-size: 42px;
-      line-height: 60px;
+      font-size: 43px;
       font-weight: 300;
+      line-height: 60px;
 
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
       cursor: pointer;
     }
 
     #composer {
-      display: none;
       position: fixed;
       inset: 0;
       z-index: 100;
-      background: rgba(0, 0, 0, 0.45);
+      display: none;
       align-items: flex-end;
+      background: rgba(0, 0, 0, 0.45);
     }
 
     #composer.open {
@@ -212,9 +213,9 @@
 
     .composer-panel {
       width: 100%;
+      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
       background: #f4f4f1;
       border-radius: 22px 22px 0 0;
-      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
     }
 
     .composer-inner {
@@ -223,9 +224,9 @@
     }
 
     .composer-title {
+      margin-bottom: 12px;
       font-size: 22px;
       font-weight: 800;
-      margin-bottom: 12px;
     }
 
     #newNote {
@@ -233,9 +234,11 @@
       min-height: 160px;
       padding: 14px;
       resize: vertical;
-      border-radius: 14px;
-      border: 2px solid #ccccca;
       outline: none;
+      background: #ffffff;
+      color: #181818;
+      border: 2px solid #ccccca;
+      border-radius: 14px;
       font-family: inherit;
       font-size: 19px;
       line-height: 1.5;
@@ -262,12 +265,12 @@
 
     #cancelButton {
       background: #ddddda;
-      color: #222;
+      color: #222222;
     }
 
     #saveButton {
-      background: #1f9d55;
-      color: white;
+      background: #1fa857;
+      color: #ffffff;
     }
   </style>
 </head>
@@ -283,7 +286,11 @@
 
   <main id="notes"></main>
 
-  <button id="addButton" type="button" aria-label="Add note">+</button>
+  <button
+    id="addButton"
+    type="button"
+    aria-label="Add note"
+  >+</button>
 
   <div id="composer">
     <div class="composer-panel">
@@ -297,8 +304,13 @@
         ></textarea>
 
         <div class="composer-buttons">
-          <button id="cancelButton" type="button">Cancel</button>
-          <button id="saveButton" type="button">Save</button>
+          <button id="cancelButton" type="button">
+            Cancel
+          </button>
+
+          <button id="saveButton" type="button">
+            Save
+          </button>
         </div>
 
       </div>
@@ -306,20 +318,32 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "hunch-notes";
+    const STORAGE_KEY = "hunch-notes-v2";
 
-    const notesContainer = document.getElementById("notes");
-    const addButton = document.getElementById("addButton");
-    const composer = document.getElementById("composer");
-    const newNote = document.getElementById("newNote");
-    const saveButton = document.getElementById("saveButton");
-    const cancelButton = document.getElementById("cancelButton");
+    const notesContainer =
+      document.getElementById("notes");
+
+    const addButton =
+      document.getElementById("addButton");
+
+    const composer =
+      document.getElementById("composer");
+
+    const newNote =
+      document.getElementById("newNote");
+
+    const saveButton =
+      document.getElementById("saveButton");
+
+    const cancelButton =
+      document.getElementById("cancelButton");
 
     let notes = loadNotes();
 
     function loadNotes() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved =
+          localStorage.getItem(STORAGE_KEY);
 
         if (!saved) {
           return [];
@@ -333,94 +357,159 @@
 
         return parsed;
       } catch (error) {
+        console.error(
+          "Could not load notes:",
+          error
+        );
+
         return [];
       }
     }
 
     function saveNotes() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(notes)
+        );
+      } catch (error) {
+        console.error(
+          "Could not save notes:",
+          error
+        );
+      }
     }
 
     function makeId() {
       return (
         Date.now().toString(36) +
-        Math.random().toString(36).slice(2)
+        "-" +
+        Math.random().toString(36).slice(2, 10)
       );
+    }
+
+    function activeNotes() {
+      return notes.filter(function(note) {
+        return note.done !== true;
+      });
     }
 
     function renderNotes() {
       notesContainer.innerHTML = "";
 
-      if (notes.length === 0) {
-        const empty = document.createElement("div");
+      const visibleNotes = activeNotes();
+
+      if (visibleNotes.length === 0) {
+        const empty =
+          document.createElement("div");
+
         empty.className = "empty";
+
         empty.textContent =
           "No notes yet. Tap the green + button to add one.";
+
         notesContainer.appendChild(empty);
+
         return;
       }
 
-      notes.forEach(function(note) {
-        const card = document.createElement("article");
+      visibleNotes.forEach(function(note) {
+        const card =
+          document.createElement("article");
+
         card.className = "note";
+
         card.dataset.id = note.id;
 
-        const text = document.createElement("div");
+        const text =
+          document.createElement("div");
+
         text.className = "note-text";
+
         text.textContent = note.text;
 
-        const buttons = document.createElement("div");
+        const buttons =
+          document.createElement("div");
+
         buttons.className = "button-row";
 
-        const editButton = document.createElement("button");
+        const editButton =
+          document.createElement("button");
+
         editButton.type = "button";
+
         editButton.className =
           "action-button edit-button";
+
         editButton.textContent = "Edit";
 
-        const deleteButton = document.createElement("button");
+        const deleteButton =
+          document.createElement("button");
+
         deleteButton.type = "button";
+
         deleteButton.className =
           "action-button delete-button";
+
         deleteButton.textContent = "Delete";
 
-        const doneButton = document.createElement("button");
+        const doneButton =
+          document.createElement("button");
+
         doneButton.type = "button";
+
         doneButton.className =
           "action-button done-button";
+
         doneButton.textContent = "Done";
 
-        editButton.addEventListener("click", function() {
-          startEditing(card, note);
-        });
-
-        deleteButton.addEventListener("click", function() {
-          const confirmed = confirm("Delete this note?");
-
-          if (!confirmed) {
-            return;
+        editButton.addEventListener(
+          "click",
+          function() {
+            startEditing(card, note);
           }
+        );
 
-          notes = notes.filter(function(item) {
-            return item.id !== note.id;
-          });
+        deleteButton.addEventListener(
+          "click",
+          function() {
+            const confirmed =
+              window.confirm(
+                "Delete this note?"
+              );
 
-          saveNotes();
-          renderNotes();
-        });
+            if (!confirmed) {
+              return;
+            }
 
-        doneButton.addEventListener("click", function() {
-          card.classList.add("disappear");
-
-          setTimeout(function() {
-            notes = notes.filter(function(item) {
-              return item.id !== note.id;
-            });
+            notes = notes.filter(
+              function(item) {
+                return item.id !== note.id;
+              }
+            );
 
             saveNotes();
             renderNotes();
-          }, 420);
-        });
+          }
+        );
+
+        doneButton.addEventListener(
+          "click",
+          function() {
+            card.classList.add("disappear");
+
+            note.done = true;
+
+            saveNotes();
+
+            window.setTimeout(
+              function() {
+                renderNotes();
+              },
+              430
+            );
+          }
+        );
 
         buttons.appendChild(editButton);
         buttons.appendChild(deleteButton);
@@ -436,45 +525,75 @@
     function startEditing(card, note) {
       card.innerHTML = "";
 
-      const editBox = document.createElement("textarea");
+      const editBox =
+        document.createElement("textarea");
+
       editBox.className = "edit-box";
+
       editBox.value = note.text;
 
-      const buttons = document.createElement("div");
+      const buttons =
+        document.createElement("div");
+
       buttons.className = "button-row";
 
-      const saveEditButton = document.createElement("button");
-      saveEditButton.type = "button";
-      saveEditButton.className =
-        "action-button done-button";
-      saveEditButton.textContent = "Save";
+      buttons.style.gridTemplateColumns =
+        "1fr 1fr";
 
-      const cancelEditButton = document.createElement("button");
+      const cancelEditButton =
+        document.createElement("button");
+
       cancelEditButton.type = "button";
+
       cancelEditButton.className =
         "action-button edit-button";
-      cancelEditButton.textContent = "Cancel";
 
-      saveEditButton.addEventListener("click", function() {
-        const updatedText = editBox.value.trim();
+      cancelEditButton.textContent =
+        "Cancel";
 
-        if (!updatedText) {
-          return;
+      const saveEditButton =
+        document.createElement("button");
+
+      saveEditButton.type = "button";
+
+      saveEditButton.className =
+        "action-button done-button";
+
+      saveEditButton.textContent =
+        "Save";
+
+      cancelEditButton.addEventListener(
+        "click",
+        function() {
+          renderNotes();
         }
+      );
 
-        note.text = updatedText;
-        saveNotes();
-        renderNotes();
-      });
+      saveEditButton.addEventListener(
+        "click",
+        function() {
+          const updatedText =
+            editBox.value.trim();
 
-      cancelEditButton.addEventListener("click", function() {
-        renderNotes();
-      });
+          if (!updatedText) {
+            return;
+          }
 
-      buttons.style.gridTemplateColumns = "1fr 1fr";
+          note.text = updatedText;
 
-      buttons.appendChild(cancelEditButton);
-      buttons.appendChild(saveEditButton);
+          saveNotes();
+
+          renderNotes();
+        }
+      );
+
+      buttons.appendChild(
+        cancelEditButton
+      );
+
+      buttons.appendChild(
+        saveEditButton
+      );
 
       card.appendChild(editBox);
       card.appendChild(buttons);
@@ -489,57 +608,87 @@
 
     function openComposer() {
       newNote.value = "";
+
       composer.classList.add("open");
 
-      setTimeout(function() {
-        newNote.focus();
-      }, 100);
+      window.setTimeout(
+        function() {
+          newNote.focus();
+        },
+        100
+      );
     }
 
     function closeComposer() {
       composer.classList.remove("open");
+
       newNote.blur();
     }
 
     function addNewNote() {
-      const text = newNote.value.trim();
+      const text =
+        newNote.value.trim();
 
       if (!text) {
         return;
       }
 
-      notes.unshift({
+      const note = {
         id: makeId(),
-        text: text
-      });
+        text: text,
+        done: false,
+        createdAt: Date.now()
+      };
+
+      notes.unshift(note);
 
       saveNotes();
+
       closeComposer();
+
       renderNotes();
     }
 
-    addButton.addEventListener("click", openComposer);
+    addButton.addEventListener(
+      "click",
+      openComposer
+    );
 
-    cancelButton.addEventListener("click", closeComposer);
+    cancelButton.addEventListener(
+      "click",
+      closeComposer
+    );
 
-    saveButton.addEventListener("click", addNewNote);
+    saveButton.addEventListener(
+      "click",
+      addNewNote
+    );
 
-    composer.addEventListener("click", function(event) {
-      if (event.target === composer) {
-        closeComposer();
+    composer.addEventListener(
+      "click",
+      function(event) {
+        if (event.target === composer) {
+          closeComposer();
+        }
       }
-    });
+    );
 
     renderNotes();
 
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function() {
-        navigator.serviceWorker
-          .register("sw.js")
-          .catch(function(error) {
-            console.log("Service worker registration failed:", error);
-          });
-      });
+      window.addEventListener(
+        "load",
+        function() {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .catch(function(error) {
+              console.error(
+                "Service worker failed:",
+                error
+              );
+            });
+        }
+      );
     }
   </script>
 

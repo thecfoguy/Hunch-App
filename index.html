@@ -1,659 +1,547 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#0b0b0b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Hunch">
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+
+  <meta name="theme-color" content="#111111" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Hunch" />
+
   <title>Hunch</title>
 
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
   <style>
-  :root{
-      color-scheme:dark;
-      --bg:#0b0b0b;
-      --panel:#171717;
-      --panel2:#202020;
-      --border:#363636;
-      --text:#fff;
-      --muted:#8f8f8f;
-      --green:#20c65a;
-      --red:#c62828;
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      background:var(--bg);
-      color:var(--text);
-      font-family:Arial,Helvetica,sans-serif;
-      -webkit-tap-highlight-color:transparent;
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f1;
+      color: #181818;
     }
 
-    button,textarea{font:inherit}
-
-    #app{
-      position:fixed;
-      inset:0;
-      display:flex;
-      flex-direction:column;
-      background:radial-gradient(circle at 50% 25%,#1a1a1a 0%,#0b0b0b 55%,#050505 100%);
+    body {
+      min-height: 100vh;
+      padding-bottom: 110px;
     }
 
-    header{
-      min-height:66px;
-      padding-top:env(safe-area-inset-top);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 auto;
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:.18em;
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f4f4f1;
+      border-bottom: 1px solid #ddddda;
+      padding: 18px 16px 14px;
     }
 
-    #viewport{
-      flex:1;
-      min-height:0;
-      overflow:hidden;
-      position:relative;
-      touch-action:pan-y;
+    .header-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    #track{
-      height:100%;
-      display:flex;
-      transition:transform 280ms cubic-bezier(.2,.8,.2,1);
-      will-change:transform;
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: #111111;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
     }
 
-    .card,.empty{
-      min-width:100vw;
-      height:100%;
-      padding:24px 28px 150px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      user-select:none;
+    .title {
+      font-size: 29px;
+      font-weight: 800;
     }
 
-    .note{
-      width:min(820px,100%);
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(29px,7vw,54px);
-      line-height:1.18;
-      font-weight:600;
-      overflow-wrap:anywhere;
-      white-space:pre-wrap;
+    #notes {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 16px 14px;
     }
 
-    .tools{
-      margin-top:34px;
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
+    .empty {
+      text-align: center;
+      color: #777;
+      padding: 80px 20px;
+      font-size: 18px;
+      line-height: 1.5;
     }
 
-    .tools button{
-      min-width:82px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      background:var(--panel2);
-      color:var(--text);
-      padding:11px 16px;
-      font-size:14px;
-      font-weight:700;
+    .note {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid #e0e0dc;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+
+      opacity: 1;
+      transform: translateX(0);
+      max-height: 500px;
+
+      transition:
+        opacity 0.4s ease,
+        transform 0.4s ease,
+        max-height 0.4s ease,
+        padding 0.4s ease,
+        margin 0.4s ease;
     }
 
-    .tools .delete{
-      background:var(--red);
-      border-color:var(--red);
+    .note.disappear {
+      opacity: 0;
+      transform: translateX(120%);
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-width: 0;
+      overflow: hidden;
     }
 
-    .tools .done{
-      background:var(--green);
-      border-color:var(--green);
+    .note-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 19px;
+      line-height: 1.5;
+      margin-bottom: 16px;
     }
 
-    .empty{
-      color:var(--muted);
-      font-size:18px;
+    .edit-box {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #1f9d55;
+      font-family: inherit;
+      font-size: 19px;
+      line-height: 1.5;
+      outline: none;
+      margin-bottom: 16px;
     }
 
-    #counter{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:calc(25px + env(safe-area-inset-bottom));
-      text-align:center;
-      font-size:13px;
-      opacity:.45;
-      pointer-events:none;
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
     }
 
-    .hint{
-      position:fixed;
-      left:24px;
-      bottom:calc(65px + env(safe-area-inset-bottom));
-      font-size:12px;
-      opacity:.30;
-      pointer-events:none;
+    .action-button {
+      min-height: 44px;
+      border: none;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    #addBtn{
-      position:fixed;
-      right:24px;
-      bottom:calc(54px + env(safe-area-inset-bottom));
-      z-index:20;
-      width:68px;
-      height:68px;
-      border:0;
-      border-radius:50%;
-      background:var(--green);
-      color:#fff;
-      font-size:44px;
-      line-height:1;
-      box-shadow:0 8px 24px rgba(0,0,0,.45);
+    .edit-button {
+      background: #e7e7e3;
+      color: #222;
     }
 
-    #modal{
-      position:fixed;
-      inset:0;
-      z-index:50;
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      background:rgba(0,0,0,.72);
-      padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    .delete-button {
+      background: #f1dede;
+      color: #a22323;
     }
 
-    #modal.open{display:flex}
-
-    .sheet{
-      width:min(680px,100%);
-      background:var(--panel);
-      border:1px solid #303030;
-      border-radius:22px;
-      padding:18px;
-      box-shadow:0 15px 60px rgba(0,0,0,.6);
+    .done-button {
+      background: #ddefe3;
+      color: #16763a;
     }
 
-    .sheet h2{
-      margin:2px 0 14px;
-      font-size:22px;
+    #addButton {
+      position: fixed;
+      right: 22px;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      z-index: 20;
+
+      width: 64px;
+      height: 64px;
+
+      border: none;
+      border-radius: 50%;
+
+      background: #1f9d55;
+      color: white;
+
+      font-size: 42px;
+      line-height: 60px;
+      font-weight: 300;
+
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+      cursor: pointer;
     }
 
-    textarea{
-      width:100%;
-      min-height:150px;
-      border:1px solid #3a3a3a;
-      border-radius:13px;
-      background:#0d0d0d;
-      color:#fff;
-      padding:14px;
-      font-size:18px;
-      outline:none;
-      resize:vertical;
+    #composer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.45);
+      align-items: flex-end;
     }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      margin-top:14px;
+    #composer.open {
+      display: flex;
     }
 
-    .actions button{
-      flex:1;
-      min-height:50px;
-      border-radius:13px;
-      border:0;
-      font-size:17px;
-      font-weight:700;
+    .composer-panel {
+      width: 100%;
+      background: #f4f4f1;
+      border-radius: 22px 22px 0 0;
+      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
     }
 
-    #cancelBtn{background:#303030;color:#fff}
-    #saveBtn{background:var(--green);color:#fff}
+    .composer-inner {
+      max-width: 700px;
+      margin: 0 auto;
+    }
 
-    @media(max-width:420px){
-      .tools button{
-        min-width:76px;
-        padding:10px 13px;
-      }
+    .composer-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    #newNote {
+      width: 100%;
+      min-height: 160px;
+      padding: 14px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 2px solid #ccccca;
+      outline: none;
+      font-family: inherit;
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    #newNote:focus {
+      border-color: #1f9d55;
+    }
+
+    .composer-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .composer-buttons button {
+      min-height: 48px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    #cancelButton {
+      background: #ddddda;
+      color: #222;
+    }
+
+    #saveButton {
+      background: #1f9d55;
+      color: white;
     }
   </style>
 </head>
 
 <body>
 
-<div id="app">
+  <header>
+    <div class="header-inner">
+      <div class="logo">H</div>
+      <div class="title">Hunch</div>
+    </div>
+  </header>
 
-  <header>HUNCH</header>
+  <main id="notes"></main>
 
-  <main id="viewport">
-    <div id="track"></div>
-  </main>
+  <button id="addButton" type="button" aria-label="Add note">+</button>
 
-  <div class="hint">Swipe ← →</div>
-  <div id="counter"></div>
+  <div id="composer">
+    <div class="composer-panel">
+      <div class="composer-inner">
 
-  <button id="addBtn" type="button">+</button>
+        <div class="composer-title">New note</div>
 
-  <div id="modal">
-    <div class="sheet">
+        <textarea
+          id="newNote"
+          placeholder="What's on your mind?"
+        ></textarea>
 
-      <h2 id="modalTitle">Add a note</h2>
+        <div class="composer-buttons">
+          <button id="cancelButton" type="button">Cancel</button>
+          <button id="saveButton" type="button">Save</button>
+        </div>
 
-      <textarea
-        id="noteInput"
-        placeholder="Type your note here…"></textarea>
-
-      <div class="actions">
-        <button id="cancelBtn" type="button">Cancel</button>
-        <button id="saveBtn" type="button">Save Note</button>
       </div>
-
     </div>
   </div>
 
-</div>
-
-<script>
-(() => {
-
-"use strict";
-
-const STORAGE_KEY="hunch_notes_v3";
-
-const track=document.getElementById("track");
-const viewport=document.getElementById("viewport");
-const counter=document.getElementById("counter");
-const modal=document.getElementById("modal");
-const input=document.getElementById("noteInput");
-const modalTitle=document.getElementById("modalTitle");
-const saveBtn=document.getElementById("saveBtn");
-const addBtn=document.getElementById("addBtn");
-const cancelBtn=document.getElementById("cancelBtn");
-
-let notes=[];
-let currentIndex=0;
-let editingIndex=null;
-let startX=0;
-let startY=0;
-let dragging=false;
-
-function loadNotes(){
-  try{
-    const stored=JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-    notes=Array.isArray(stored)
-      ? stored
-          .map(item =>
-            typeof item==="string"
-              ? {text:item}
-              : item
-          )
-          .filter(item =>
-            item &&
-            typeof item.text==="string"
-          )
-      : [];
-  }
-  catch(e){
-    notes=[];
-  }
-}
-
-function saveNotes(){
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(notes)
-  );
-}
-
-function esc(value){
-  return String(value).replace(
-    /[&<>"']/g,
-    ch => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-    }[ch])
-  );
-}
-
-function render(){
-
-  if(!notes.length){
-
-    currentIndex=0;
-
-    track.innerHTML=
-      '<section class="empty">Tap + to add your first Hunch.</section>';
-
-    track.style.transform="translateX(0)";
-    counter.textContent="";
-
-    return;
-  }
-
-  currentIndex=Math.max(
-    0,
-    Math.min(currentIndex,notes.length-1)
-  );
-
-  track.innerHTML=notes.map((note,i)=>`
-
-    <section class="card" data-index="${i}">
-
-      <div class="note">${esc(note.text)}</div>
-
-      <div class="tools">
-
-        <button
-          type="button"
-          class="edit"
-          data-index="${i}">
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="delete"
-          data-index="${i}">
-          Delete
-        </button>
-
-        <button
-          type="button"
-          class="done"
-          data-index="${i}">
-          Done
-        </button>
-
-      </div>
-
-    </section>
-
-  `).join("");
-
-  goTo(currentIndex,false);
-}
-
-function goTo(i,animate=true){
-
-  if(!notes.length)return;
-
-  currentIndex=Math.max(
-    0,
-    Math.min(i,notes.length-1)
-  );
-
-  track.style.transition=
-    animate
-      ? "transform 280ms cubic-bezier(.2,.8,.2,1)"
-      : "none";
-
-  track.style.transform=
-    `translateX(${-currentIndex*window.innerWidth}px)`;
-
-  counter.textContent=
-    `${currentIndex+1} / ${notes.length}`;
-}
-
-function openEditor(i=null){
-
-  editingIndex=i;
-
-  if(i===null){
-
-    modalTitle.textContent="Add a note";
-    saveBtn.textContent="Save Note";
-    input.value="";
-
-  }else{
-
-    modalTitle.textContent="Edit note";
-    saveBtn.textContent="Save Changes";
-    input.value=notes[i].text;
-
-  }
-
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden","false");
-
-  setTimeout(()=>{
-    input.focus();
-  },80);
-}
-
-function closeEditor(){
-
-  modal.classList.remove("open");
-  modal.setAttribute("aria-hidden","true");
-
-  editingIndex=null;
-  input.blur();
-}
-
-function saveCurrentNote(){
-
-  const text=input.value.trim();
-
-  if(!text){
-    input.focus();
-    return;
-  }
-
-  if(editingIndex===null){
-
-    notes.push({text});
-    currentIndex=notes.length-1;
-
-  }else{
-
-    notes[editingIndex]={text};
-    currentIndex=editingIndex;
-
-  }
-
-  saveNotes();
-  render();
-  closeEditor();
-}
-
-function deleteNote(i){
-
-  if(!window.confirm("Delete this note?"))return;
-
-  notes.splice(i,1);
-
-  saveNotes();
-
-  currentIndex=Math.min(
-    i,
-    Math.max(0,notes.length-1)
-  );
-
-  render();
-}
-
-function completeNote(i){
-
-  notes.splice(i,1);
-
-  saveNotes();
-
-  currentIndex=Math.min(
-    i,
-    Math.max(0,notes.length-1)
-  );
-
-  render();
-}
-
-addBtn.addEventListener(
-  "click",
-  ()=>openEditor()
-);
-
-cancelBtn.addEventListener(
-  "click",
-  closeEditor
-);
-
-saveBtn.addEventListener(
-  "click",
-  saveCurrentNote
-);
-
-modal.addEventListener(
-  "click",
-  e=>{
-    if(e.target===modal){
-      closeEditor();
-    }
-  }
-);
-
-track.addEventListener(
-  "click",
-  e=>{
-
-    const edit=e.target.closest(".edit");
-    const del=e.target.closest(".delete");
-    const done=e.target.closest(".done");
-
-    if(edit){
-      openEditor(
-        Number(edit.dataset.index)
-      );
-      return;
+  <script>
+    const STORAGE_KEY = "hunch-notes";
+
+    const notesContainer = document.getElementById("notes");
+    const addButton = document.getElementById("addButton");
+    const composer = document.getElementById("composer");
+    const newNote = document.getElementById("newNote");
+    const saveButton = document.getElementById("saveButton");
+    const cancelButton = document.getElementById("cancelButton");
+
+    let notes = loadNotes();
+
+    function loadNotes() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+          return [];
+        }
+
+        const parsed = JSON.parse(saved);
+
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        return parsed;
+      } catch (error) {
+        return [];
+      }
     }
 
-    if(del){
-      deleteNote(
-        Number(del.dataset.index)
-      );
-      return;
+    function saveNotes() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
     }
 
-    if(done){
-      completeNote(
-        Number(done.dataset.index)
+    function makeId() {
+      return (
+        Date.now().toString(36) +
+        Math.random().toString(36).slice(2)
       );
     }
-  }
-);
 
-viewport.addEventListener(
-  "touchstart",
-  e=>{
+    function renderNotes() {
+      notesContainer.innerHTML = "";
 
-    if(
-      e.touches.length!==1 ||
-      !notes.length
-    )return;
+      if (notes.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "No notes yet. Tap the green + button to add one.";
+        notesContainer.appendChild(empty);
+        return;
+      }
 
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
+      notes.forEach(function(note) {
+        const card = document.createElement("article");
+        card.className = "note";
+        card.dataset.id = note.id;
 
-    dragging=true;
+        const text = document.createElement("div");
+        text.className = "note-text";
+        text.textContent = note.text;
 
-    track.style.transition="none";
+        const buttons = document.createElement("div");
+        buttons.className = "button-row";
 
-  },
-  {passive:true}
-);
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className =
+          "action-button edit-button";
+        editButton.textContent = "Edit";
 
-viewport.addEventListener(
-  "touchmove",
-  e=>{
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className =
+          "action-button delete-button";
+        deleteButton.textContent = "Delete";
 
-    if(
-      !dragging ||
-      e.touches.length!==1
-    )return;
+        const doneButton = document.createElement("button");
+        doneButton.type = "button";
+        doneButton.className =
+          "action-button done-button";
+        doneButton.textContent = "Done";
 
-    const dx=
-      e.touches[0].clientX-startX;
+        editButton.addEventListener("click", function() {
+          startEditing(card, note);
+        });
 
-    const dy=
-      e.touches[0].clientY-startY;
+        deleteButton.addEventListener("click", function() {
+          const confirmed = confirm("Delete this note?");
 
-    if(Math.abs(dx)>Math.abs(dy)){
+          if (!confirmed) {
+            return;
+          }
 
-      e.preventDefault();
+          notes = notes.filter(function(item) {
+            return item.id !== note.id;
+          });
 
-      track.style.transform=
-        `translateX(${(-currentIndex*window.innerWidth)+dx}px)`;
+          saveNotes();
+          renderNotes();
+        });
+
+        doneButton.addEventListener("click", function() {
+          card.classList.add("disappear");
+
+          setTimeout(function() {
+            notes = notes.filter(function(item) {
+              return item.id !== note.id;
+            });
+
+            saveNotes();
+            renderNotes();
+          }, 420);
+        });
+
+        buttons.appendChild(editButton);
+        buttons.appendChild(deleteButton);
+        buttons.appendChild(doneButton);
+
+        card.appendChild(text);
+        card.appendChild(buttons);
+
+        notesContainer.appendChild(card);
+      });
     }
 
-  },
-  {passive:false}
-);
+    function startEditing(card, note) {
+      card.innerHTML = "";
 
-viewport.addEventListener(
-  "touchend",
-  e=>{
+      const editBox = document.createElement("textarea");
+      editBox.className = "edit-box";
+      editBox.value = note.text;
 
-    if(!dragging)return;
+      const buttons = document.createElement("div");
+      buttons.className = "button-row";
 
-    dragging=false;
+      const saveEditButton = document.createElement("button");
+      saveEditButton.type = "button";
+      saveEditButton.className =
+        "action-button done-button";
+      saveEditButton.textContent = "Save";
 
-    const dx=
-      e.changedTouches[0].clientX-startX;
+      const cancelEditButton = document.createElement("button");
+      cancelEditButton.type = "button";
+      cancelEditButton.className =
+        "action-button edit-button";
+      cancelEditButton.textContent = "Cancel";
 
-    if(Math.abs(dx)>60){
+      saveEditButton.addEventListener("click", function() {
+        const updatedText = editBox.value.trim();
 
-      if(
-        dx<0 &&
-        currentIndex<notes.length-1
-      ){
-        goTo(currentIndex+1);
-      }
+        if (!updatedText) {
+          return;
+        }
 
-      else if(
-        dx>0 &&
-        currentIndex>0
-      ){
-        goTo(currentIndex-1);
-      }
+        note.text = updatedText;
+        saveNotes();
+        renderNotes();
+      });
 
-      else{
-        goTo(currentIndex);
-      }
+      cancelEditButton.addEventListener("click", function() {
+        renderNotes();
+      });
 
-    }else{
+      buttons.style.gridTemplateColumns = "1fr 1fr";
 
-      goTo(currentIndex);
+      buttons.appendChild(cancelEditButton);
+      buttons.appendChild(saveEditButton);
+
+      card.appendChild(editBox);
+      card.appendChild(buttons);
+
+      editBox.focus();
+
+      editBox.setSelectionRange(
+        editBox.value.length,
+        editBox.value.length
+      );
     }
 
-  },
-  {passive:true}
-);
+    function openComposer() {
+      newNote.value = "";
+      composer.classList.add("open");
 
-window.addEventListener(
-  "resize",
-  ()=>goTo(currentIndex,false)
-);
+      setTimeout(function() {
+        newNote.focus();
+      }, 100);
+    }
 
-loadNotes();
-render();
+    function closeComposer() {
+      composer.classList.remove("open");
+      newNote.blur();
+    }
 
-})();
-</script>
+    function addNewNote() {
+      const text = newNote.value.trim();
+
+      if (!text) {
+        return;
+      }
+
+      notes.unshift({
+        id: makeId(),
+        text: text
+      });
+
+      saveNotes();
+      closeComposer();
+      renderNotes();
+    }
+
+    addButton.addEventListener("click", openComposer);
+
+    cancelButton.addEventListener("click", closeComposer);
+
+    saveButton.addEventListener("click", addNewNote);
+
+    composer.addEventListener("click", function(event) {
+      if (event.target === composer) {
+        closeComposer();
+      }
+    });
+
+    renderNotes();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker
+          .register("sw.js")
+          .catch(function(error) {
+            console.log("Service worker registration failed:", error);
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>

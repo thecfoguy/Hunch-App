@@ -1,1 +1,486 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Hunch">
+  <title>Hunch</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      color: #000000;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: calc(26px + env(safe-area-inset-top)) 20px 10px;
+      text-align: center;
+      font-size: 31px;
+      font-weight: 800;
+      letter-spacing: 8px;
+      z-index: 2;
+    }
+
+    .card {
+      position: absolute;
+      inset: 100px 24px 270px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 8vw, 48px);
+      font-weight: 700;
+      line-height: 1.16;
+      user-select: none;
+      touch-action: pan-y;
+      opacity: 1;
+      transform: translateY(0);
+      transition: transform .7s ease-in, opacity .7s ease-in;
+    }
+
+    .card.done-away {
+      transform: translateY(70vh);
+      opacity: 0;
+    }
+
+    .empty {
+      color: #777;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    .actions {
+      position: absolute;
+      left: 50%;
+      bottom: calc(178px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 4;
+    }
+
+    .action {
+      min-width: 110px;
+      height: 58px;
+      padding: 0 18px;
+      border: 1px solid #555;
+      border-radius: 18px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .edit {
+      background: #2a2a2a;
+    }
+
+    .delete {
+      background: #922525;
+      border-color: #ad4141;
+    }
+
+    .done {
+      background: #1f6f3d;
+      border-color: #33975b;
+    }
+
+    .hint {
+      position: absolute;
+      left: 24px;
+      bottom: calc(92px + env(safe-area-inset-bottom));
+      color: #666;
+      font-size: 15px;
+      z-index: 3;
+    }
+
+    .counter {
+      position: absolute;
+      left: 50%;
+      bottom: calc(92px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      color: #777;
+      font-size: 16px;
+      z-index: 3;
+    }
+
+    .add-btn {
+      position: absolute;
+      right: 24px;
+      bottom: calc(72px + env(safe-area-inset-bottom));
+      width: 84px;
+      height: 84px;
+      border: 3px solid #58e181;
+      border-radius: 50%;
+      background: #20bd5c;
+      color: #fff;
+      font-size: 48px;
+      font-weight: 300;
+      line-height: 1;
+      box-shadow: 0 0 22px rgba(32, 189, 92, .32);
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, .88);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 430px;
+      padding: 20px;
+      border-radius: 20px;
+      background: #191919;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 23px;
+      color: #fff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 16px;
+      border: 0;
+      border-radius: 14px;
+      outline: none;
+      resize: none;
+      background: #fff;
+      color: #111;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 14px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cancel {
+      background: #333;
+      color: #fff;
+    }
+
+    .save {
+      background: #20bd5c;
+      color: #fff;
+    }
+
+    @media (max-width: 390px) {
+      .action {
+        min-width: 100px;
+        padding: 0 14px;
+        font-size: 17px;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .card {
+        left: 22px;
+        right: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>HUNCH</header>
+
+    <div id="card" class="card"></div>
+
+    <div class="actions" id="actions">
+      <button class="action edit" id="editButton">Edit</button>
+      <button class="action delete" id="deleteButton">Delete</button>
+      <button class="action done" id="doneButton">Done</button>
+    </div>
+
+    <div class="hint">Swipe ↔</div>
+    <div class="counter" id="counter"></div>
+    <button class="add-btn" id="addButton" aria-label="Add note">+</button>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="panel">
+      <h2 id="modalTitle">Add note</h2>
+      <textarea id="noteInput" placeholder="Write your note..."></textarea>
+
+      <div class="modal-actions">
+        <button class="cancel" id="cancelButton">Cancel</button>
+        <button class="save" id="saveButton">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "hunchNotes";
+    const OLD_KEYS = ["hunch-notes", "hunch-notes-v2"];
+
+    const card = document.getElementById("card");
+    const counter = document.getElementById("counter");
+    const actions = document.getElementById("actions");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const input = document.getElementById("noteInput");
+    const addButton = document.getElementById("addButton");
+    const editButton = document.getElementById("editButton");
+    const deleteButton = document.getElementById("deleteButton");
+    const doneButton = document.getElementById("doneButton");
+    const cancelButton = document.getElementById("cancelButton");
+    const saveButton = document.getElementById("saveButton");
+
+    function normalize(raw) {
+      if (!Array.isArray(raw)) return [];
+
+      return raw
+        .filter(item => item && item.done !== true && (typeof item === "string" || item.text))
+        .map(item => {
+          if (typeof item === "string") {
+            return { id: Date.now() + Math.random(), text: item };
+          }
+
+          return {
+            id: item.id || Date.now() + Math.random(),
+            text: String(item.text)
+          };
+        })
+        .filter(item => item.text.trim());
+    }
+
+    function loadNotes() {
+      try {
+        const currentSaved = localStorage.getItem(STORAGE_KEY);
+
+        if (currentSaved) {
+          return normalize(JSON.parse(currentSaved));
+        }
+
+        for (const key of OLD_KEYS) {
+          const oldSaved = localStorage.getItem(key);
+
+          if (oldSaved) {
+            const migrated = normalize(JSON.parse(oldSaved));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+            return migrated;
+          }
+        }
+      } catch (error) {
+        console.error("Load failed:", error);
+      }
+
+      return [];
+    }
+
+    let notes = loadNotes();
+    let current = 0;
+    let editing = false;
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    }
+
+    function showNote() {
+      card.classList.remove("done-away");
+
+      if (!notes.length) {
+        card.innerHTML = '<div class="empty">Tap + to add your first Hunch.</div>';
+        counter.textContent = "0 / 0";
+        actions.style.visibility = "hidden";
+        return;
+      }
+
+      if (current >= notes.length) current = notes.length - 1;
+      if (current < 0) current = 0;
+
+      card.textContent = notes[current].text;
+      counter.textContent = (current + 1) + " / " + notes.length;
+      actions.style.visibility = "visible";
+    }
+
+    function nextNote() {
+      if (notes.length < 2) return;
+      current = (current + 1) % notes.length;
+      showNote();
+    }
+
+    function previousNote() {
+      if (notes.length < 2) return;
+      current = (current - 1 + notes.length) % notes.length;
+      showNote();
+    }
+
+    function openAdd() {
+      editing = false;
+      modalTitle.textContent = "Add note";
+      input.value = "";
+      modal.classList.add("open");
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function openEdit() {
+      if (!notes.length) return;
+      editing = true;
+      modalTitle.textContent = "Edit note";
+      input.value = notes[current].text;
+      modal.classList.add("open");
+
+      setTimeout(() => {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }, 50);
+    }
+
+    function closeModal() {
+      modal.classList.remove("open");
+      input.blur();
+    }
+
+    function saveNote() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (editing) {
+        notes[current].text = text;
+      } else {
+        notes.push({ id: Date.now(), text: text });
+        current = notes.length - 1;
+      }
+
+      persist();
+      closeModal();
+      showNote();
+    }
+
+    function deleteCurrent() {
+      if (!notes.length) return;
+      if (!confirm("Delete this note?")) return;
+
+      notes.splice(current, 1);
+      if (current >= notes.length) current = Math.max(0, notes.length - 1);
+      persist();
+      showNote();
+    }
+
+    function finishCurrent() {
+      if (!notes.length) return;
+
+      card.classList.add("done-away");
+
+      setTimeout(() => {
+        notes.splice(current, 1);
+        if (current >= notes.length) current = Math.max(0, notes.length - 1);
+        persist();
+        showNote();
+      }, 700);
+    }
+
+    let startX = 0;
+    let startY = 0;
+
+    card.addEventListener("touchstart", event => {
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+    }, { passive: true });
+
+    card.addEventListener("touchend", event => {
+      const endX = event.changedTouches[0].clientX;
+      const endY = event.changedTouches[0].clientY;
+      const dx = endX - startX;
+      const dy = endY - startY;
+
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) nextNote();
+        else previousNote();
+      }
+    }, { passive: true });
+
+    addButton.addEventListener("click", openAdd);
+    editButton.addEventListener("click", openEdit);
+    deleteButton.addEventListener("click", deleteCurrent);
+    doneButton.addEventListener("click", finishCurrent);
+    cancelButton.addEventListener("click", closeModal);
+    saveButton.addEventListener("click", saveNote);
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) closeModal();
+    });
+
+    showNote();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(error => {
+          console.error("Service worker registration failed:", error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

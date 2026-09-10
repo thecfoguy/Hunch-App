@@ -1,45 +1,658 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#0b0b0b">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Hunch">
-<title>Hunch</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0b0b;font-family:Arial,Helvetica,sans-serif;color:white;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
-#app{position:fixed;inset:0;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 30%,#1b1b1b 0%,#0b0b0b 55%,#050505 100%)}
-header{height:64px;flex:0 0 64px;display:flex;align-items:center;justify-content:center;padding-top:env(safe-area-inset-top);font-size:20px;font-weight:800;letter-spacing:.18em;user-select:none}
-#viewport{flex:1;min-height:0;overflow:hidden;position:relative;touch-action:pan-y}#track{height:100%;display:flex;transition:transform 280ms cubic-bezier(.2,.8,.2,1);will-change:transform}
-.card{min-width:100vw;height:100%;padding:26px 28px 130px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;user-select:none}
-.quote{max-width:820px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(29px,7vw,54px);line-height:1.18;font-weight:600;overflow-wrap:anywhere}.author{margin-top:28px;font-size:clamp(16px,4vw,22px);opacity:.72;letter-spacing:.04em}
-#counter{position:fixed;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));text-align:center;font-size:13px;opacity:.45;pointer-events:none;user-select:none}
-#addBtn{position:fixed;right:22px;bottom:calc(34px + env(safe-area-inset-bottom));width:66px;height:66px;border:2px solid rgba(255,255,255,.24);border-radius:50%;background:linear-gradient(145deg,#32d46b,#149447);color:white;font-size:42px;font-weight:400;line-height:58px;box-shadow:0 10px 28px rgba(0,0,0,.52),0 3px 9px rgba(32,198,90,.32),inset 0 1px 0 rgba(255,255,255,.20);z-index:20;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 4px 0}
-#addBtn:active{transform:scale(.94);box-shadow:0 5px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.16)}
-#modal{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.72);padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#modal.open{display:flex}
-.sheet{width:min(680px,100%);background:#181818;border:1px solid #303030;border-radius:22px;padding:18px;box-shadow:0 15px 60px rgba(0,0,0,.6)}.sheet h2{margin:2px 0 14px;font-size:22px}
-textarea,input{width:100%;border:1px solid #3a3a3a;border-radius:13px;background:#0d0d0d;color:white;padding:14px;font:inherit;outline:none}textarea{min-height:145px;resize:vertical;font-size:18px}input{margin-top:10px;font-size:16px}textarea:focus,input:focus{border-color:#20c65a}
-.actions{display:flex;gap:10px;margin-top:14px}.actions button{flex:1;min-height:50px;border-radius:13px;border:0;font-size:17px;font-weight:700}#cancelBtn{background:#303030;color:white}#saveBtn{background:#20c65a;color:white}
-.hint{position:fixed;left:18px;bottom:calc(44px + env(safe-area-inset-bottom));font-size:12px;opacity:.35;user-select:none;pointer-events:none}@media(max-height:600px){.card{padding-bottom:90px}#addBtn{width:56px;height:56px;font-size:38px}.hint{display:none}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#0b0b0b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Hunch">
+  <title>Hunch</title>
+
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#0b0b0b;
+      --panel:#171717;
+      --panel2:#202020;
+      --border:#363636;
+      --text:#fff;
+      --muted:#8f8f8f;
+      --green:#20c65a;
+      --red:#c62828;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button,textarea{font:inherit}
+
+    #app{
+      position:fixed;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      background:radial-gradient(circle at 50% 25%,#1a1a1a 0%,#0b0b0b 55%,#050505 100%);
+    }
+
+    header{
+      min-height:66px;
+      padding-top:env(safe-area-inset-top);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.18em;
+    }
+
+    #viewport{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      position:relative;
+      touch-action:pan-y;
+    }
+
+    #track{
+      height:100%;
+      display:flex;
+      transition:transform 280ms cubic-bezier(.2,.8,.2,1);
+      will-change:transform;
+    }
+
+    .card,.empty{
+      min-width:100vw;
+      height:100%;
+      padding:24px 28px 150px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      user-select:none;
+    }
+
+    .note{
+      width:min(820px,100%);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(29px,7vw,54px);
+      line-height:1.18;
+      font-weight:600;
+      overflow-wrap:anywhere;
+      white-space:pre-wrap;
+    }
+
+    .tools{
+      margin-top:34px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .tools button{
+      min-width:82px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:var(--panel2);
+      color:var(--text);
+      padding:11px 16px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .tools .delete{
+      background:var(--red);
+      border-color:var(--red);
+    }
+
+    .tools .done{
+      background:var(--green);
+      border-color:var(--green);
+    }
+
+    .empty{
+      color:var(--muted);
+      font-size:18px;
+    }
+
+    #counter{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:calc(25px + env(safe-area-inset-bottom));
+      text-align:center;
+      font-size:13px;
+      opacity:.45;
+      pointer-events:none;
+    }
+
+    .hint{
+      position:fixed;
+      left:24px;
+      bottom:calc(65px + env(safe-area-inset-bottom));
+      font-size:12px;
+      opacity:.30;
+      pointer-events:none;
+    }
+
+    #addBtn{
+      position:fixed;
+      right:24px;
+      bottom:calc(54px + env(safe-area-inset-bottom));
+      z-index:20;
+      width:68px;
+      height:68px;
+      border:0;
+      border-radius:50%;
+      background:var(--green);
+      color:#fff;
+      font-size:44px;
+      line-height:1;
+      box-shadow:0 8px 24px rgba(0,0,0,.45);
+    }
+
+    #modal{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(0,0,0,.72);
+      padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    }
+
+    #modal.open{display:flex}
+
+    .sheet{
+      width:min(680px,100%);
+      background:var(--panel);
+      border:1px solid #303030;
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 15px 60px rgba(0,0,0,.6);
+    }
+
+    .sheet h2{
+      margin:2px 0 14px;
+      font-size:22px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:150px;
+      border:1px solid #3a3a3a;
+      border-radius:13px;
+      background:#0d0d0d;
+      color:#fff;
+      padding:14px;
+      font-size:18px;
+      outline:none;
+      resize:vertical;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .actions button{
+      flex:1;
+      min-height:50px;
+      border-radius:13px;
+      border:0;
+      font-size:17px;
+      font-weight:700;
+    }
+
+    #cancelBtn{background:#303030;color:#fff}
+    #saveBtn{background:var(--green);color:#fff}
+
+    @media(max-width:420px){
+      .tools button{
+        min-width:76px;
+        padding:10px 13px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div id="app"><header>HUNCH</header><main id="viewport"><div id="track"></div></main><div class="hint">Swipe ← →</div><div id="counter"></div><button id="addBtn" aria-label="Add quote">+</button><div id="modal" aria-hidden="true"><div class="sheet"><h2>Add a quote</h2><textarea id="quoteInput" placeholder="Type or paste your quote here…"></textarea><input id="authorInput" placeholder="Author (optional)"><div class="actions"><button id="cancelBtn">Cancel</button><button id="saveBtn">Save Quote</button></div></div></div></div>
+
+<div id="app">
+
+  <header>HUNCH</header>
+
+  <main id="viewport">
+    <div id="track"></div>
+  </main>
+
+  <div class="hint">Swipe ← →</div>
+  <div id="counter"></div>
+
+  <button id="addBtn" type="button">+</button>
+
+  <div id="modal">
+    <div class="sheet">
+
+      <h2 id="modalTitle">Add a note</h2>
+
+      <textarea
+        id="noteInput"
+        placeholder="Type your note here…"></textarea>
+
+      <div class="actions">
+        <button id="cancelBtn" type="button">Cancel</button>
+        <button id="saveBtn" type="button">Save Note</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
 <script>
-const starterQuotes=[{text:"The impediment to action advances action. What stands in the way becomes the way.",author:"Marcus Aurelius"},{text:"Waste no more time arguing what a good man should be. Be one.",author:"Marcus Aurelius"},{text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche"}];
-let quotes;try{quotes=JSON.parse(localStorage.getItem("hunch_quotes"))||starterQuotes;if(!Array.isArray(quotes)||quotes.length===0)quotes=starterQuotes}catch{quotes=starterQuotes}
-let index=0;const track=document.getElementById("track"),viewport=document.getElementById("viewport"),counter=document.getElementById("counter"),modal=document.getElementById("modal"),quoteInput=document.getElementById("quoteInput"),authorInput=document.getElementById("authorInput");
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function render(){track.innerHTML=quotes.map(q=>`<section class="card"><div class="quote">“${esc(q.text)}”</div>${q.author?`<div class="author">— ${esc(q.author)}</div>`:""}</section>`).join("");index=Math.max(0,Math.min(index,quotes.length-1));go(index,false)}
-function go(i,animate=true){index=Math.max(0,Math.min(i,quotes.length-1));track.style.transition=animate?"transform 280ms cubic-bezier(.2,.8,.2,1)":"none";track.style.transform=`translateX(${-index*window.innerWidth}px)`;counter.textContent=`${index+1} / ${quotes.length}`}
-let startX=0,startY=0,dragging=false;viewport.addEventListener("touchstart",e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragging=true;track.style.transition="none"},{passive:true});viewport.addEventListener("touchmove",e=>{if(!dragging||e.touches.length!==1)return;const dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;if(Math.abs(dx)>Math.abs(dy)){e.preventDefault();track.style.transform=`translateX(${(-index*window.innerWidth)+dx}px)`}},{passive:false});viewport.addEventListener("touchend",e=>{if(!dragging)return;dragging=false;const dx=e.changedTouches[0].clientX-startX;if(dx<-55&&index<quotes.length-1)go(index+1);else if(dx>55&&index>0)go(index-1);else go(index)},{passive:true});
-document.getElementById("addBtn").addEventListener("click",()=>{modal.classList.add("open");modal.setAttribute("aria-hidden","false");quoteInput.value="";authorInput.value="";setTimeout(()=>quoteInput.focus(),100)});document.getElementById("cancelBtn").addEventListener("click",closeModal);modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});function closeModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");quoteInput.blur();authorInput.blur()}
-document.getElementById("saveBtn").addEventListener("click",()=>{const text=quoteInput.value.trim(),author=authorInput.value.trim();if(!text){quoteInput.focus();return}quotes.push({text,author});localStorage.setItem("hunch_quotes",JSON.stringify(quotes));index=quotes.length-1;render();closeModal()});window.addEventListener("resize",()=>go(index,false));render();if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+(() => {
+
+"use strict";
+
+const STORAGE_KEY="hunch_notes_v3";
+
+const track=document.getElementById("track");
+const viewport=document.getElementById("viewport");
+const counter=document.getElementById("counter");
+const modal=document.getElementById("modal");
+const input=document.getElementById("noteInput");
+const modalTitle=document.getElementById("modalTitle");
+const saveBtn=document.getElementById("saveBtn");
+const addBtn=document.getElementById("addBtn");
+const cancelBtn=document.getElementById("cancelBtn");
+
+let notes=[];
+let currentIndex=0;
+let editingIndex=null;
+let startX=0;
+let startY=0;
+let dragging=false;
+
+function loadNotes(){
+  try{
+    const stored=JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+    notes=Array.isArray(stored)
+      ? stored
+          .map(item =>
+            typeof item==="string"
+              ? {text:item}
+              : item
+          )
+          .filter(item =>
+            item &&
+            typeof item.text==="string"
+          )
+      : [];
+  }
+  catch(e){
+    notes=[];
+  }
+}
+
+function saveNotes(){
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(notes)
+  );
+}
+
+function esc(value){
+  return String(value).replace(
+    /[&<>"']/g,
+    ch => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[ch])
+  );
+}
+
+function render(){
+
+  if(!notes.length){
+
+    currentIndex=0;
+
+    track.innerHTML=
+      '<section class="empty">Tap + to add your first Hunch.</section>';
+
+    track.style.transform="translateX(0)";
+    counter.textContent="";
+
+    return;
+  }
+
+  currentIndex=Math.max(
+    0,
+    Math.min(currentIndex,notes.length-1)
+  );
+
+  track.innerHTML=notes.map((note,i)=>`
+
+    <section class="card" data-index="${i}">
+
+      <div class="note">${esc(note.text)}</div>
+
+      <div class="tools">
+
+        <button
+          type="button"
+          class="edit"
+          data-index="${i}">
+          Edit
+        </button>
+
+        <button
+          type="button"
+          class="delete"
+          data-index="${i}">
+          Delete
+        </button>
+
+        <button
+          type="button"
+          class="done"
+          data-index="${i}">
+          Done
+        </button>
+
+      </div>
+
+    </section>
+
+  `).join("");
+
+  goTo(currentIndex,false);
+}
+
+function goTo(i,animate=true){
+
+  if(!notes.length)return;
+
+  currentIndex=Math.max(
+    0,
+    Math.min(i,notes.length-1)
+  );
+
+  track.style.transition=
+    animate
+      ? "transform 280ms cubic-bezier(.2,.8,.2,1)"
+      : "none";
+
+  track.style.transform=
+    `translateX(${-currentIndex*window.innerWidth}px)`;
+
+  counter.textContent=
+    `${currentIndex+1} / ${notes.length}`;
+}
+
+function openEditor(i=null){
+
+  editingIndex=i;
+
+  if(i===null){
+
+    modalTitle.textContent="Add a note";
+    saveBtn.textContent="Save Note";
+    input.value="";
+
+  }else{
+
+    modalTitle.textContent="Edit note";
+    saveBtn.textContent="Save Changes";
+    input.value=notes[i].text;
+
+  }
+
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+
+  setTimeout(()=>{
+    input.focus();
+  },80);
+}
+
+function closeEditor(){
+
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+
+  editingIndex=null;
+  input.blur();
+}
+
+function saveCurrentNote(){
+
+  const text=input.value.trim();
+
+  if(!text){
+    input.focus();
+    return;
+  }
+
+  if(editingIndex===null){
+
+    notes.push({text});
+    currentIndex=notes.length-1;
+
+  }else{
+
+    notes[editingIndex]={text};
+    currentIndex=editingIndex;
+
+  }
+
+  saveNotes();
+  render();
+  closeEditor();
+}
+
+function deleteNote(i){
+
+  if(!window.confirm("Delete this note?"))return;
+
+  notes.splice(i,1);
+
+  saveNotes();
+
+  currentIndex=Math.min(
+    i,
+    Math.max(0,notes.length-1)
+  );
+
+  render();
+}
+
+function completeNote(i){
+
+  notes.splice(i,1);
+
+  saveNotes();
+
+  currentIndex=Math.min(
+    i,
+    Math.max(0,notes.length-1)
+  );
+
+  render();
+}
+
+addBtn.addEventListener(
+  "click",
+  ()=>openEditor()
+);
+
+cancelBtn.addEventListener(
+  "click",
+  closeEditor
+);
+
+saveBtn.addEventListener(
+  "click",
+  saveCurrentNote
+);
+
+modal.addEventListener(
+  "click",
+  e=>{
+    if(e.target===modal){
+      closeEditor();
+    }
+  }
+);
+
+track.addEventListener(
+  "click",
+  e=>{
+
+    const edit=e.target.closest(".edit");
+    const del=e.target.closest(".delete");
+    const done=e.target.closest(".done");
+
+    if(edit){
+      openEditor(
+        Number(edit.dataset.index)
+      );
+      return;
+    }
+
+    if(del){
+      deleteNote(
+        Number(del.dataset.index)
+      );
+      return;
+    }
+
+    if(done){
+      completeNote(
+        Number(done.dataset.index)
+      );
+    }
+  }
+);
+
+viewport.addEventListener(
+  "touchstart",
+  e=>{
+
+    if(
+      e.touches.length!==1 ||
+      !notes.length
+    )return;
+
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+
+    dragging=true;
+
+    track.style.transition="none";
+
+  },
+  {passive:true}
+);
+
+viewport.addEventListener(
+  "touchmove",
+  e=>{
+
+    if(
+      !dragging ||
+      e.touches.length!==1
+    )return;
+
+    const dx=
+      e.touches[0].clientX-startX;
+
+    const dy=
+      e.touches[0].clientY-startY;
+
+    if(Math.abs(dx)>Math.abs(dy)){
+
+      e.preventDefault();
+
+      track.style.transform=
+        `translateX(${(-currentIndex*window.innerWidth)+dx}px)`;
+    }
+
+  },
+  {passive:false}
+);
+
+viewport.addEventListener(
+  "touchend",
+  e=>{
+
+    if(!dragging)return;
+
+    dragging=false;
+
+    const dx=
+      e.changedTouches[0].clientX-startX;
+
+    if(Math.abs(dx)>60){
+
+      if(
+        dx<0 &&
+        currentIndex<notes.length-1
+      ){
+        goTo(currentIndex+1);
+      }
+
+      else if(
+        dx>0 &&
+        currentIndex>0
+      ){
+        goTo(currentIndex-1);
+      }
+
+      else{
+        goTo(currentIndex);
+      }
+
+    }else{
+
+      goTo(currentIndex);
+    }
+
+  },
+  {passive:true}
+);
+
+window.addEventListener(
+  "resize",
+  ()=>goTo(currentIndex,false)
+);
+
+loadNotes();
+render();
+
+})();
 </script>
-</body></html>
+
+</body>
+</html>

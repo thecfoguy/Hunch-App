@@ -1,13 +1,12 @@
-
 {
-  "name": "Hunch",
-  "short_name": "Hunch",
+  "name": "Notable",
+  "short_name": "Notable",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0d0d0d",
-  "theme_color": "#0d0d0d",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "icon-192.png",

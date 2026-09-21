@@ -410,8 +410,8 @@
       if (editing) {
         notes[current].text = text;
       } else {
-        notes.push({ id: Date.now(), text: text });
-        current = notes.length - 1;
+        notes.unshift({ id: Date.now(), text: text });
+        current = 0;
       }
 
       persist();
